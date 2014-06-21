@@ -2466,6 +2466,7 @@ function KBENGINE()
 
 	this.Client_onKicked = function(failedcode)
 	{
+		console.error("KBENGINE::Client_onKicked: failedcode(" + failedcode + ")!");
 	}
 	
 	this.Client_onSetEntityPosAndDir = function(stream)
