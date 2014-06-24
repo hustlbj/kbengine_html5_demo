@@ -835,6 +835,8 @@ function KBEENTITY()
 	this.cell = null;
 	this.base = null;
 	
+	this.inWorld = false;
+	
 	KBEENTITY.prototype.baseCall = function()
 	{
 		if(arguments.length < 1)
@@ -909,6 +911,28 @@ function KBEENTITY()
 		}
 		
 		this.cell.postMail();
+	}
+	
+	KBEENTITY.prototype.onEnterWorld = function()
+	{
+		console.info(this.classtype + '::onEnterWorld: ' + this.id); 
+		this.inWorld = true;
+	}
+	
+	KBEENTITY.prototype.onLeaveWorld = function()
+	{
+		console.info(this.classtype + '::onLeaveWorld: ' + this.id); 
+		this.inWorld = false;
+	}
+	
+	KBEENTITY.prototype.onEnterSpace = function()
+	{
+		console.info(this.classtype + '::onEnterSpace: ' + this.id); 
+	}
+	
+	KBEENTITY.prototype.onLeaveSpace = function()
+	{
+		console.info(this.classtype + '::onLeaveSpace: ' + this.id); 
 	}
 }
 
@@ -2379,13 +2403,13 @@ function KBENGINE()
 			delete g_bufferedCreateEntityMessage[eid];
 			
 			entity.__init__();
-			entity.enterWorld();
+			entity.onEnterWorld();
 		}
 		else
 		{
 			if(!entity.inWorld)
 			{
-				entity.enterWorld();
+				entity.onEnterWorld();
 			}
 		}
 	}
@@ -2406,7 +2430,7 @@ function KBENGINE()
 		}
 		
 		if(entity.inWorld)
-			entity.leaveWorld();
+			entity.onLeaveWorld();
 		
 		if(g_kbengine.entity_id > 0 && eid != g_kbengine.entity_id)
 		{
@@ -2423,7 +2447,7 @@ function KBENGINE()
 		}
 		else
 		{
-			g_kbengine.clearSpace();
+			g_kbengine.clearSpace(true);
 			entity.cell = null;
 		}
 	}
@@ -2440,21 +2464,30 @@ function KBENGINE()
 		}
 
 		if(entity.inWorld)
-			entity.leaveWorld();
+			entity.onLeaveWorld();
+		
 		delete g_kbengine.entities[eid];
 	}
 	
-	this.Client_onEntityEnterSpace = function(spaceID, eid)
+	this.Client_onEntityEnterSpace = function(stream)
 	{
+		var eid = stream.readInt32();
+		var isOnGound = true;
+		
+		if(stream.opsize() > 0)
+			isOnGound = stream.readInt8();
+		
 		var entity = g_kbengine.entities[eid];
 		if(entity == undefined)
 		{
 			console.error("KBENGINE::Client_onEntityEnterSpace: entity(" + eid + ") not found!");
 			return;
 		}
+		
+		entity.onEnterSpace();
 	}
 	
-	this.Client_onEntityLeaveSpace = function(spaceID, eid)
+	this.Client_onEntityLeaveSpace = function(eid)
 	{
 		var entity = g_kbengine.entities[eid];
 		if(entity == undefined)
@@ -2462,6 +2495,9 @@ function KBENGINE()
 			console.error("KBENGINE::Client_onEntityLeaveSpace: entity(" + eid + ") not found!");
 			return;
 		}
+		
+		g_kbengine.clearSpace(false);
+		entity.onLeaveSpace();
 	}
 
 	this.Client_onKicked = function(failedcode)
@@ -2529,30 +2565,42 @@ function KBENGINE()
 		g_kbengine.spaceResPath = respath;
 	}
 
-	this.clearSpace = function()
+	this.clearSpace = function(isAll)
 	{
 		g_kbengine.entityIDAliasIDList = [];
 		g_kbengine.spacedata = {};
 		g_kbengine.isLoadedGeometry = false;
 		g_kbengine.spaceID = 0;
 		
-		var entity = g_kbengine.player();
-		
-		for (var eid in g_kbengine.entities)  
-		{ 
-			if(eid == entity.id)
-				continue;
+		if(!isAll)
+		{
+			var entity = g_kbengine.player();
 			
-		    g_kbengine.entities[eid].leaveWorld();
-		}  
-			
-		g_kbengine.entities = {}
-		g_kbengine.entities[entity.id] = entity;
+			for (var eid in g_kbengine.entities)  
+			{ 
+				if(eid == entity.id)
+					continue;
+				
+			    g_kbengine.entities[eid].onLeaveWorld();
+			}  
+				
+			g_kbengine.entities = {}
+			g_kbengine.entities[entity.id] = entity;
+		}
+		else
+		{
+			for (var eid in g_kbengine.entities)  
+			{ 
+			    g_kbengine.entities[eid].onLeaveWorld();
+			}  
+				
+			g_kbengine.entities = {}
+		}
 	}
 		
 	this.Client_initSpaceData = function(stream)
 	{
-		g_kbengine.clearSpace();
+		g_kbengine.clearSpace(false);
 		
 		g_kbengine.spaceID = stream.readInt32();
 		while(stream.opsize() > 0)
