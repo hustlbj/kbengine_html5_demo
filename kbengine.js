@@ -2447,7 +2447,7 @@ function KBENGINE()
 		}
 		else
 		{
-			g_kbengine.clearSpace(true);
+			g_kbengine.clearSpace(false);
 			entity.cell = null;
 		}
 	}
