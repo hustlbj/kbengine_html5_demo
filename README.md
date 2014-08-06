@@ -1,7 +1,7 @@
 KBEngine_html5_demo
 =============
 
-##Homepage
+##This client-project is written for kbengine(a MMOG engine of server)
 http://www.kbengine.org
 
 
