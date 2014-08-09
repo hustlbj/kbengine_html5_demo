@@ -1497,7 +1497,7 @@ function KBENGINE()
 		this.serverdatas = "";
 		this.clientdatas = "";
 		this.serverVersion = "";
-		this.clientVersion = "0.1.9";
+		this.clientVersion = "0.1.12";
 		this.entity_uuid = null;
 		this.entity_id = 0;
 		this.entity_type = "";
