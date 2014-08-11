@@ -2168,6 +2168,27 @@ function KBENGINE()
 		}
 	}
 	
+	this.relogin_baseapp = function()
+	{  
+		console.info("KBENGINE::relogin_baseapp: start connect to ws://" + g_kbengine.ip + ":" + g_kbengine.port + "!");
+		g_kbengine.connect("ws://" + g_kbengine.ip + ":" + g_kbengine.port);
+		g_kbengine.socket.onopen = g_kbengine.onReOpenBaseapp;  
+	}
+	
+	this.onReOpenBaseapp = function()
+	{
+		console.info("KBENGINE::onReOpenBaseapp: successfully!");
+		g_kbengine.currserver = "baseapp";
+		
+		var bundle = new KBE_BUNDLE();
+		bundle.newMessage(g_messages.Baseapp_reLoginGateway);
+		bundle.writeString(g_kbengine.username);
+		bundle.writeString(g_kbengine.password);
+		bundle.writeUint64(g_kbengine.entity_uuid);
+		bundle.writeInt32(g_kbengine.entity_id);
+		bundle.send(g_kbengine);
+	}
+	
 	this.Client_onHelloCB = function(args)
 	{
 		g_kbengine.serverVersion = args.readString();
@@ -2199,6 +2220,11 @@ function KBENGINE()
 	this.Client_onLoginGatewayFailed = function(failedcode)
 	{
 		console.error("KBENGINE::Client_onLoginGatewayFailed: failedcode(" + failedcode + ")!");
+	}
+
+	this.Client_onReLoginGatewaySuccessfully = function()
+	{
+		console.error("KBENGINE::Client_onReLoginGatewaySuccessfully: " + g_kbengine.username);
 	}
 	
 	this.entityclass = {};
