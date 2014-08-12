@@ -1618,19 +1618,23 @@ function KBENGINE()
 		var dateObject = new Date();
 		if((dateObject.getTime() - g_kbengine.lastticktime) / 1000 > 15)
 		{
-			if(g_messages.Loginapp_onClientActiveTick != undefined || g_messages.Baseapp_onClientActiveTick != undefined)
+			if(g_kbengine.currserver == "loginapp")
 			{
-				var bundle = new KBE_BUNDLE();
-				if(g_kbengine.currserver == "loginapp")
+				if(g_messages.Loginapp_onClientActiveTick != undefined)
 				{
+					var bundle = new KBE_BUNDLE();
 					bundle.newMessage(g_messages.Loginapp_onClientActiveTick);
+					bundle.send(g_kbengine);
 				}
-				else
+			}
+			else
+			{
+				if(g_messages.Baseapp_onClientActiveTick != undefined)
 				{
+					var bundle = new KBE_BUNDLE();
 					bundle.newMessage(g_messages.Baseapp_onClientActiveTick);
+					bundle.send(g_kbengine);
 				}
-				
-				bundle.send(g_kbengine);
 			}
 			
 			g_kbengine.lastticktime = dateObject.getTime();
