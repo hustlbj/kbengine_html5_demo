@@ -1497,7 +1497,9 @@ function KBENGINE()
 		this.serverdatas = "";
 		this.clientdatas = "";
 		this.serverVersion = "";
-		this.clientVersion = "0.1.12";
+		this.serverScriptVersion = "";
+		this.clientVersion = "0.1.13";
+		this.clientScriptVersion = "0.1.0";
 		this.entity_uuid = null;
 		this.entity_id = 0;
 		this.entity_type = "";
@@ -1517,11 +1519,14 @@ function KBENGINE()
 	this.hello = function()
 	{  
 		var bundle = new KBE_BUNDLE();
+		
 		if(g_kbengine.currserver == "loginapp")
 			bundle.newMessage(g_messages.Loginapp_hello);
 		else
 			bundle.newMessage(g_messages.Baseapp_hello);
+		
 		bundle.writeString(g_kbengine.clientVersion);
+		bundle.writeString(g_kbengine.clientScriptVersion);
 		bundle.writeBlob(g_kbengine.clientdatas);
 		bundle.send(g_kbengine);
 	}
@@ -1967,7 +1972,13 @@ function KBENGINE()
 		this.serverVersion = stream.readString();
 		console.error("Client_onVersionNotMatch: verInfo=" + g_kbengine.clientVersion + " not match(server: " + this.serverVersion + ")");
 	}
-		
+
+	this.Client_onScriptVersionNotMatch = function(stream)
+	{
+		this.serverScriptVersion = stream.readString();
+		console.error("Client_onScriptVersionNotMatch: verInfo=" + g_kbengine.clientScriptVersion + " not match(server: " + this.serverScriptVersion + ")");
+	}
+	
 	this.onImportEntityDefCompleted = function()
 	{
 		console.info("KBENGINE::onImportEntityDefCompleted: successfully!");
@@ -2196,8 +2207,11 @@ function KBENGINE()
 	this.Client_onHelloCB = function(args)
 	{
 		g_kbengine.serverVersion = args.readString();
+		g_kbengine.serverScriptVersion = args.readString();
 		var ctype = args.readInt32();
-		console.info("KBENGINE::Client_onHelloCB: verInfo(" + g_kbengine.serverVersion + "), ctype(" + ctype + ")!");
+		
+		console.info("KBENGINE::Client_onHelloCB: verInfo(" + g_kbengine.serverVersion + "), scriptVerInfo(" + 
+			g_kbengine.serverScriptVersion + "), ctype(" + ctype + ")!");
 	}
 	
 	this.Client_onLoginFailed = function(args)
@@ -2254,6 +2268,15 @@ function KBENGINE()
 	this.Client_onCreatedProxies = function(rndUUID, eid, entityType)
 	{
 		console.info("KBENGINE::Client_onCreatedProxies: eid(" + eid + "), entityType(" + entityType + ")!");
+		
+		var entity = g_kbengine.entities[eid];
+		
+		if(entity != undefined)
+		{
+			console.warn("KBENGINE::Client_onCreatedProxies: entity(" + eid + ") has exist!");
+			return;
+		}
+		
 		g_kbengine.entity_uuid = rndUUID;
 		g_kbengine.entity_id = eid;
 		
