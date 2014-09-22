@@ -1498,6 +1498,8 @@ function KBENGINE()
 		this.clientdatas = "";
 		this.serverVersion = "";
 		this.serverScriptVersion = "";
+		this.serverProtocolMD5 = "";
+		this.serverEntityDefMD5 = "";
 		this.clientVersion = "0.1.13";
 		this.clientScriptVersion = "0.1.0";
 		this.entity_uuid = null;
@@ -2208,10 +2210,14 @@ function KBENGINE()
 	{
 		g_kbengine.serverVersion = args.readString();
 		g_kbengine.serverScriptVersion = args.readString();
+		g_kbengine.serverProtocolMD5 = args.readString();
+		g_kbengine.serverEntityDefMD5 = args.readString();
+		
 		var ctype = args.readInt32();
 		
 		console.info("KBENGINE::Client_onHelloCB: verInfo(" + g_kbengine.serverVersion + "), scriptVerInfo(" + 
-			g_kbengine.serverScriptVersion + "), ctype(" + ctype + ")!");
+			g_kbengine.serverScriptVersion + "), serverProtocolMD5(" + g_kbengine.serverProtocolMD5 + "), serverEntityDefMD5(" + 
+			g_kbengine.serverEntityDefMD5 + "), ctype(" + ctype + ")!");
 	}
 	
 	this.Client_onLoginFailed = function(args)
@@ -2240,8 +2246,9 @@ function KBENGINE()
 		console.error("KBENGINE::Client_onLoginGatewayFailed: failedcode(" + failedcode + ")!");
 	}
 
-	this.Client_onReLoginGatewaySuccessfully = function()
+	this.Client_onReLoginGatewaySuccessfully = function(stream)
 	{
+		g_kbengine.entity_uuid = stream.readUint64();
 		console.error("KBENGINE::Client_onReLoginGatewaySuccessfully: " + g_kbengine.username);
 	}
 	
