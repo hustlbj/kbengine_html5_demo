@@ -2317,6 +2317,12 @@ function KBENGINE()
 			id = g_kbengine.entityIDAliasIDList[stream.readUint8()];
 		}
 		
+		// 如果为0且客户端上一步是重登陆或者重连操作并且服务端entity在断线期间一直处于在线状态
+		// 则可以忽略这个错误, 因为cellapp可能一直在向baseapp发送同步消息， 当客户端重连上时未等
+		// 服务端初始化步骤开始则收到同步信息, 此时这里就会出错。
+		if(g_kbengine.entityIDAliasIDList.length == 0)
+			return 0;
+		
 		return id;
 	}
 	
@@ -2469,6 +2475,13 @@ function KBENGINE()
 		{
 			if(!entity.inWorld)
 			{
+				// 安全起见， 这里清空一下
+				// 如果服务端上使用giveClientTo切换控制权
+				// 之前的实体已经进入世界， 切换后的实体也进入世界， 这里可能会残留之前那个实体进入世界的信息
+				g_kbengine.entityIDAliasIDList = [];
+				g_kbengine.entities = {}
+				g_kbengine.entities[entity.id] = entity;
+			
 				entity.onEnterWorld();
 			}
 		}
@@ -2981,6 +2994,13 @@ function KBENGINE()
 	
 	this._updateVolatileData = function(entityID, x, y, z, yaw, pitch, roll)
 	{
+		if(entityID == 0)
+		{
+			// 如果为0且客户端上一步是重登陆或者重连操作并且服务端entity在断线期间一直处于在线状态
+			// 则可以忽略这个错误, 因为cellapp可能一直在向baseapp发送同步消息， 当客户端重连上时未等
+			// 服务端初始化步骤开始则收到同步信息, 此时这里就会出错。
+			return;
+		}
 	}
 	
 	this.Client_onStreamDataStarted = function(id, datasize, descr)
