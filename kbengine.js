@@ -1500,7 +1500,7 @@ function KBENGINE()
 		this.serverScriptVersion = "";
 		this.serverProtocolMD5 = "";
 		this.serverEntityDefMD5 = "";
-		this.clientVersion = "0.1.13";
+		this.clientVersion = "0.2.0";
 		this.clientScriptVersion = "0.1.0";
 		this.entity_uuid = null;
 		this.entity_id = 0;
