@@ -2405,7 +2405,14 @@ function KBENGINE()
 			args.push(argsdata[i].createFromStream(stream));
 		}
 		
-		entity[methoddata[2]].apply(entity, args);
+		if(entity[methoddata[2]] != undefined)
+		{
+			entity[methoddata[2]].apply(entity, args);
+		}
+		else
+		{
+			console.error("KBENGINE::Client_onRemoteMethodCall: entity(" + eid + ") not found method(" + methoddata[2] + ")!");
+		}
 	}
 	
 	this.Client_onRemoteMethodCallOptimized = function(stream)
