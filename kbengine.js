@@ -1588,8 +1588,14 @@ function KBENGINE()
 			{
 				var msglen = msgHandler.length;
 				if(msglen == -1)
+				{
 					msglen = stream.readUint16();
-				
+					
+					// À©Õ¹³¤¶È
+					if(msglen == 65535)
+						msglen = stream.readUint32();
+				}
+			
 				var wpos = stream.wpos;
 				var rpos = stream.rpos + msglen;
 				stream.wpos = rpos;
