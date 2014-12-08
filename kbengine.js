@@ -282,7 +282,7 @@ function KBE_MEMORYSTREAM(size_or_buffer)
 	this.writeBlob = function(v)
 	{
 		size = v.length;
-		if(size + 4> this.fillfree())
+		if(size + 4> this.space())
 		{
 			console.error("memorystream::writeBlob: no free!");
 			return;
@@ -311,7 +311,7 @@ function KBE_MEMORYSTREAM(size_or_buffer)
 	
 	this.writeString = function(v)
 	{
-		if(v.length > this.fillfree())
+		if(v.length > this.space())
 		{
 			console.error("memorystream::writeString: no free!");
 			return;
@@ -335,13 +335,13 @@ function KBE_MEMORYSTREAM(size_or_buffer)
 	}
 	
 	//---------------------------------------------------------------------------------
-	this.fillfree = function()
+	this.space = function()
 	{
 		return this.buffer.byteLength - this.wpos;
 	}
 
 	//---------------------------------------------------------------------------------
-	this.opsize = function()
+	this.length = function()
 	{
 		return this.wpos - this.rpos;
 	}
@@ -351,15 +351,9 @@ function KBE_MEMORYSTREAM(size_or_buffer)
 	{
 		return this.buffer.byteLength - this.rpos <= 0;
 	}
-	
-	//---------------------------------------------------------------------------------
-	this.totalsize = function()
-	{
-		return tthis.opsize();
-	}
 
 	//---------------------------------------------------------------------------------
-	this.opfini = function()
+	this.done = function()
 	{
 		this.rpos = this.wpos;
 	}
@@ -454,7 +448,7 @@ function KBE_BUNDLE()
 	//---------------------------------------------------------------------------------
 	this.checkStream = function(v)
 	{
-		if(v > this.stream.fillfree())
+		if(v > this.stream.space())
 		{
 			this.memorystreams.push(this.stream);
 			this.stream = new KBE_MEMORYSTREAM(PACKET_MAX_SIZE_TCP);
@@ -2354,7 +2348,7 @@ function KBENGINE()
 		
 		var currModule = g_moduledefs[entity.classtype];
 		var pdatas = currModule.propertys;
-		while(stream.opsize() > 0)
+		while(stream.length() > 0)
 		{
 			var utype = 0;
 			if(currModule.usePropertyDescrAlias)
@@ -2447,7 +2441,7 @@ function KBENGINE()
 		
 		var isOnGound = true;
 		
-		if(stream.opsize() > 0)
+		if(stream.length() > 0)
 			isOnGound = stream.readInt8();
 		
 		entityType = g_moduledefs[entityType].name;
@@ -2560,7 +2554,7 @@ function KBENGINE()
 		var eid = stream.readInt32();
 		var isOnGound = true;
 		
-		if(stream.opsize() > 0)
+		if(stream.length() > 0)
 			isOnGound = stream.readInt8();
 		
 		var entity = g_kbengine.entities[eid];
@@ -2689,7 +2683,7 @@ function KBENGINE()
 		g_kbengine.clearSpace(false);
 		
 		g_kbengine.spaceID = stream.readInt32();
-		while(stream.opsize() > 0)
+		while(stream.length() > 0)
 		{
 			var key = stream.readString();
 			var value = stream.readString();
