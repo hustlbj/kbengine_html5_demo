@@ -5,8 +5,7 @@
 	<meta name="author" content="www.kbengine.org" /> 
     <link rel="icon"
           type="image/GIF"
-          href="samples/tests/res/Images/favicon.ico"/>
-	<link href='http://fonts.googleapis.com/css?family=Nunito:700,300' rel='stylesheet' type='text/css'>
+          href="favicon.ico"/>
 	
    <style type="text/css">
         body {
@@ -59,7 +58,12 @@
 
 <body style="background: #f2f6f8;">
 	<script>
-		function entergame()
+		function login()
+		{
+			g_kbengine.login("html5test", "html5test");
+		}
+	
+		function enterGame()
 		{
 			var account = g_kbengine.player();
 			
@@ -72,26 +76,37 @@
 			account.selectAvatarGame(account.avatars.values[0].dbid);
 		}
 		
-		function createrole()
+		function createRole()
 		{
 			var account = g_kbengine.player();
 			account.reqCreateAvatar(1, "kbengine");
 		}
 		
-		function newpassword_baseapp()
+		function new_password()
 		{
-			g_kbengine.newpassword_baseapp(g_kbengine.password, '000000');
+			g_kbengine.new_password(g_kbengine.password, '000000');
 		}
+		
+		function reset_password()
+		{
+			g_kbengine.reset_password("html5test");
+		}
+		
+		function createAccount()
+		{
+			g_kbengine.createAccount("html5test", "html5test");
+		}
+		
 	</script>
 		
 	<input id = "msg" type = "text">
-	<button id = "createaccount" onclick = "g_kbengine.createAccount_loginapp(true);">createAccount</button>  
-	<button id = "login" onclick = "g_kbengine.login_loginapp(true);">login</button>  
-	<button id = "reloginGateway" onclick = "g_kbengine.relogin_baseapp();">reloginGateway</button>  
-	<button id = "enter" onclick = "entergame();">enterWorld[avatar1]</button>  
-	<button id = "create" onclick = "createrole();">createRole</button> 
-	<button id = "reset" onclick = "g_kbengine.resetpassword_loginapp(true);">resetPassword</button> 
-	<button id = "bindmail" onclick = "g_kbengine.bindEMail_baseapp();">bindEmail</button> 
-	<button id = "newpassword" onclick = "newpassword_baseapp();">newPassword</button> 
+	<button id = "createaccount" onclick = "createAccount();">create account</button>  
+	<button id = "login" onclick = "login();">login</button>  
+	<button id = "reloginGateway" onclick = "g_kbengine.relogin_baseapp();">relogin baseapp</button>  
+	<button id = "enter" onclick = "enterGame();">enter world[avatar1]</button>  
+	<button id = "create" onclick = "createRole();">create role</button> 
+	<button id = "reset" onclick = "reset_password();">reset password</button> 
+	<button id = "bindmail" onclick = "g_kbengine.bind_email();">bind email</button> 
+	<button id = "newpassword" onclick = "new_password();">new password</button> 
 </body>  
 </html>  

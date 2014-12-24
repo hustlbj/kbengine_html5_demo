@@ -821,7 +821,7 @@ g_bufferedCreateEntityMessage = {};
 function KBEENTITY()
 {
 	this.id = 0;
-	this.classtype = "";
+	this.className = "";
 	this.position = [0.0, 0.0, 0.0];
 	this.direction = [0.0, 0.0, 0.0];
 	this.velocity = 0.0
@@ -839,7 +839,7 @@ function KBEENTITY()
 			return;
 		}
 		
-		var method = g_moduledefs[this.classtype].base_methods[arguments[0]];
+		var method = g_moduledefs[this.className].base_methods[arguments[0]];
 		var methodID = method[0];
 		var args = method[3];
 		
@@ -877,7 +877,7 @@ function KBEENTITY()
 			return;
 		}
 		
-		var method = g_moduledefs[this.classtype].cell_methods[arguments[0]];
+		var method = g_moduledefs[this.className].cell_methods[arguments[0]];
 		var methodID = method[0];
 		var args = method[3];
 		
@@ -909,24 +909,24 @@ function KBEENTITY()
 	
 	KBEENTITY.prototype.onEnterWorld = function()
 	{
-		console.info(this.classtype + '::onEnterWorld: ' + this.id); 
+		console.info(this.className + '::onEnterWorld: ' + this.id); 
 		this.inWorld = true;
 	}
 	
 	KBEENTITY.prototype.onLeaveWorld = function()
 	{
-		console.info(this.classtype + '::onLeaveWorld: ' + this.id); 
+		console.info(this.className + '::onLeaveWorld: ' + this.id); 
 		this.inWorld = false;
 	}
 	
 	KBEENTITY.prototype.onEnterSpace = function()
 	{
-		console.info(this.classtype + '::onEnterSpace: ' + this.id); 
+		console.info(this.className + '::onEnterSpace: ' + this.id); 
 	}
 	
 	KBEENTITY.prototype.onLeaveSpace = function()
 	{
-		console.info(this.classtype + '::onLeaveSpace: ' + this.id); 
+		console.info(this.className + '::onLeaveSpace: ' + this.id); 
 	}
 }
 
@@ -939,7 +939,7 @@ var MAILBOX_TYPE_BASE = 1;
 function KBEMAILBOX()
 {
 	this.id = 0;
-	this.classtype = "";
+	this.className = "";
 	this.type = MAILBOX_TYPE_CELL;
 	this.networkInterface = g_kbengine;
 	
@@ -1350,6 +1350,7 @@ function KBEDATATYPE_BLOB()
 	{
 		var size = g_reader.readUint32.call(stream);
 		var buf = new Uint8Array(stream.buffer, stream.rpos, size);
+		stream.rpos += size;
 		return buf;
 	}
 	
@@ -2054,6 +2055,14 @@ function KBENGINE()
 			console.error("KBENGINE::onmessage: not found msg(" + msgid + ")!");
 	}
 	
+	this.createAccount = function(username, password)
+	{  
+		g_kbengine.username = username;
+		g_kbengine.password = password;
+		
+		g_kbengine.createAccount_loginapp(true);
+	}
+	
 	this.createAccount_loginapp = function(noconnect)
 	{  
 		if(noconnect)
@@ -2073,17 +2082,17 @@ function KBENGINE()
 		}
 	}
 	
-	this.bindEMail_baseapp = function()
+	this.bind_email = function()
 	{  
 		var bundle = new KBE_BUNDLE();
 		bundle.newMessage(g_messages.Baseapp_reqAccountBindEmail);
 		bundle.writeInt32(g_kbengine.entity_id);
 		bundle.writeString(g_kbengine.password);
-		bundle.writeString("3603661@qq.com");
+		bundle.writeString("kbesrv@gmail.com");
 		bundle.send(g_kbengine);
 	}
 	
-	this.newpassword_baseapp = function(oldpassword, newpassword)
+	this.new_password = function(oldpassword, newpassword)
 	{
 		var bundle = new KBE_BUNDLE();
 		bundle.newMessage(g_messages.Baseapp_reqAccountNewPassword);
@@ -2091,6 +2100,14 @@ function KBENGINE()
 		bundle.writeString(oldpassword);
 		bundle.writeString(newpassword);
 		bundle.send(g_kbengine);
+	}
+	
+	this.login = function(username, password)
+	{  
+		g_kbengine.username = username;
+		g_kbengine.password = password;
+		
+		g_kbengine.login_loginapp(true);
 	}
 	
 	this.login_loginapp = function(noconnect)
@@ -2131,6 +2148,12 @@ function KBENGINE()
 		{
 			g_kbengine.onImportClientMessagesCompleted();
 		}
+	}
+
+	this.reset_password = function(username)
+	{ 
+		g_kbengine.username = username;
+		g_kbengine.resetpassword_loginapp(true);
 	}
 	
 	this.resetpassword_loginapp = function(noconnect)
@@ -2294,11 +2317,11 @@ function KBENGINE()
 		
 		var entity = new runclass();
 		entity.id = eid;
-		entity.classtype = entityType;
+		entity.className = entityType;
 		
 		entity.base = new KBEMAILBOX();
 		entity.base.id = eid;
-		entity.base.classtype = entityType;
+		entity.base.className = entityType;
 		entity.base.type = MAILBOX_TYPE_BASE;
 		
 		g_kbengine.entities[eid] = entity;
@@ -2347,7 +2370,7 @@ function KBENGINE()
 			return;
 		}
 		
-		var currModule = g_moduledefs[entity.classtype];
+		var currModule = g_moduledefs[entity.className];
 		var pdatas = currModule.propertys;
 		while(stream.length() > 0)
 		{
@@ -2361,7 +2384,7 @@ function KBENGINE()
 			var setmethod = propertydata[5];
 			var val = propertydata[4].createFromStream(stream);
 			var oldval = entity[utype];
-			console.info("KBENGINE::Client_onUpdatePropertys: " + entity.classtype + "(id=" + eid  + " " + propertydata[2] + ", val=" + val + ")!");
+			console.info("KBENGINE::Client_onUpdatePropertys: " + entity.className + "(id=" + eid  + " " + propertydata[2] + ", val=" + val + ")!");
 			entity[propertydata[2]] = val;
 			if(setmethod != null)
 			{
@@ -2393,12 +2416,12 @@ function KBENGINE()
 		}
 		
 		var methodUtype = 0;
-		if(g_moduledefs[entity.classtype].useMethodDescrAlias)
+		if(g_moduledefs[entity.className].useMethodDescrAlias)
 			methodUtype = stream.readUint8();
 		else
 			methodUtype = stream.readUint16();
 		
-		var methoddata = g_moduledefs[entity.classtype].methods[methodUtype];
+		var methoddata = g_moduledefs[entity.className].methods[methodUtype];
 		var args = [];
 		var argsdata = methoddata[3];
 		for(var i=0; i<argsdata.length; i++)
@@ -2464,11 +2487,11 @@ function KBENGINE()
 			
 			var entity = new runclass();
 			entity.id = eid;
-			entity.classtype = entityType;
+			entity.className = entityType;
 			
 			entity.cell = new KBEMAILBOX();
 			entity.cell.id = eid;
-			entity.cell.classtype = entityType;
+			entity.cell.className = entityType;
 			entity.cell.type = MAILBOX_TYPE_CELL;
 			
 			g_kbengine.entities[eid] = entity;
