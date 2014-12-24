@@ -1508,6 +1508,7 @@ function KBENGINE()
 		this.spaceResPath = "";
 		this.isLoadedGeometry = false;
 		this.isOnGound = false;
+		this.component = "client";
 	}
 	
 	this.reset();
