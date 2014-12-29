@@ -1476,7 +1476,7 @@ g_datatypes["BLOB"] = new KBEDATATYPE_BLOB();
 -----------------------------------------------------------------------------------------*/
 function KBENGINE()
 {
-	this.username = " testhtml51";
+	this.username = "testhtml51";
 	this.password = "123456";
 	this.loginappMessageImported = false;
 	this.baseappMessageImported = false;
