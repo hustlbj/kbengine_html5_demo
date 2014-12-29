@@ -21,7 +21,7 @@ http://www.kbengine.org
 ![submodule_update2](http://www.kbengine.org/assets/img/screenshots/unity3d_plugins_submodule_update.jpg)
 
 			*Or manually get the demo-assets(server)
-				https://github.com/kbengine/kbengine_demos_assets/archive/master.zip
+				https://github.com/kbengine/kbengine_demos_assets/releases/latest
 				unzip and copy to kbengine/
 
 
@@ -51,10 +51,9 @@ http://www.kbengine.org
 
 	Start server:
 		Windows:
-
 			kbengine\kbengine_demos_assets\start_server_fixed.bat
-		Linux:
 
+		Linux:
 			kbengine\kbengine_demos_assets\start_server_fixed.sh
 
 		(more: http://www.kbengine.org/docs/startup_shutdown.html)
