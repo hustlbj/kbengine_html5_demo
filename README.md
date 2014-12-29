@@ -50,8 +50,14 @@ http://www.kbengine.org
 
 
 	Start server:
-		kbengine\kbengine_demos_assets\start_server_fixed.bat
-		(More: http://www.kbengine.org/docs/startup_shutdown.html)
+		Windows:
+
+			kbengine\kbengine_demos_assets\start_server_fixed.bat
+		Linux:
+
+			kbengine\kbengine_demos_assets\start_server_fixed.sh
+
+		(more: http://www.kbengine.org/docs/startup_shutdown.html)
 
 
 ##Start client
