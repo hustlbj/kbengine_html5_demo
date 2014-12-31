@@ -22,7 +22,7 @@ http://www.kbengine.org
 
 			*Or manually get the demo-assets(server)
 				https://github.com/kbengine/kbengine_demos_assets/releases/latest
-				unzip and copy to kbengine/
+				unzip and copy to "kbengine/"  (The root directory server engine, such as $KBE_ROOT)
 
 
 
@@ -56,7 +56,10 @@ http://www.kbengine.org
 		Linux:
 			kbengine\kbengine_demos_assets\start_server_fixed.sh
 
-		(more: http://www.kbengine.org/docs/startup_shutdown.html)
+	Check the startup status:
+		If successful will find log "Components::process(): Found all the components!".
+		Otherwise, please search the "ERROR" keyword in logs, according to the error description to try to solve.
+		(More: http://www.kbengine.org/docs/startup_shutdown.html)
 
 
 ##Start client
