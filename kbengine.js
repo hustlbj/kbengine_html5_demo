@@ -1,3 +1,73 @@
+var KBEngine = KBEngine || {};
+
+/*-----------------------------------------------------------------------------------------
+					    	JavaScript Inheritance
+-----------------------------------------------------------------------------------------*/
+/* Simple JavaScript Inheritance
+ * By John Resig http://ejohn.org/
+ * MIT Licensed.
+ */
+KBEngine.Class = function(){};
+KBEngine.Class.extend = function (prop) {
+    var _super = this.prototype;
+
+    // Instantiate a base class (but only create the instance,
+    // don't run the init constructor)
+    initializing = true;
+    var prototype = Object.create(_super);
+    initializing = false;
+    fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
+
+    // Copy the properties over onto the new prototype
+    for (var name in prop) {
+        // Check if we're overwriting an existing function
+        prototype[name] = typeof prop[name] == "function" &&
+            typeof _super[name] == "function" && fnTest.test(prop[name]) ?
+            (function (name, fn) {
+                return function () {
+                    var tmp = this._super;
+
+                    // Add a new ._super() method that is the same method
+                    // but on the super-class
+                    this._super = _super[name];
+
+                    // The method only need to be bound temporarily, so we
+                    // remove it when we're done executing
+                    var ret = fn.apply(this, arguments);
+                    this._super = tmp;
+
+                    return ret;
+                };
+            })(name, prop[name]) :
+            prop[name];
+    }
+
+    // The dummy class constructor
+    function Class() {
+        // All construction is actually done in the init method
+        if (!initializing) {
+            if (!this.ctor) {
+                if (this.__nativeObj)
+                    console.info("No ctor function found!");
+            }
+            else {
+                this.ctor.apply(this, arguments);
+            }
+        }
+    }
+
+    // Populate our constructed prototype object
+    Class.prototype = prototype;
+
+    // Enforce the constructor to be what we expect
+    Class.prototype.constructor = Class;
+
+    // And make this class extendable
+    Class.extend = arguments.callee;
+
+    return Class;
+};
+
 /*-----------------------------------------------------------------------------------------
 												global
 -----------------------------------------------------------------------------------------*/
@@ -818,24 +888,30 @@ g_bufferedCreateEntityMessage = {};
 /*-----------------------------------------------------------------------------------------
 												entity
 -----------------------------------------------------------------------------------------*/
-function KBEENTITY()
-{
-	this.id = 0;
-	this.className = "";
-	this.position = [0.0, 0.0, 0.0];
-	this.direction = [0.0, 0.0, 0.0];
-	this.velocity = 0.0
+KBEngine.Entity = KBEngine.Class.extend({
+	init : function()
+	{
+		this.id = 0;
+		this.className = "";
+		this.position = [0.0, 0.0, 0.0];
+		this.direction = [0.0, 0.0, 0.0];
+		this.velocity = 0.0
+			
+		this.cell = null;
+		this.base = null;
 		
-	this.cell = null;
-	this.base = null;
-	
-	this.inWorld = false;
-	
-	KBEENTITY.prototype.baseCall = function()
+		this.inWorld = false;
+	},
+
+	onInit : function()
+	{
+	},
+		
+	baseCall : function()
 	{
 		if(arguments.length < 1)
 		{
-			console.error('KBEENTITY::baseCall: not fount interfaceName!');  
+			console.error('KBEngine.Entity::baseCall: not fount interfaceName!');  
 			return;
 		}
 		
@@ -845,7 +921,7 @@ function KBEENTITY()
 		
 		if(arguments.length - 1 != args.length)
 		{
-			console.error("KBEENTITY::baseCall: args(" + (arguments.length - 1) + "!= " + args.length + ") size is error!");  
+			console.error("KBEngine.Entity::baseCall: args(" + (arguments.length - 1) + "!= " + args.length + ") size is error!");  
 			return;
 		}
 		
@@ -861,19 +937,19 @@ function KBEENTITY()
 		}
 		catch(e)
 		{
-			console.error('KBEENTITY::baseCall: args is error!');  
+			console.error('KBEngine.Entity::baseCall: args is error!');  
 			this.base.bundle = null;
 			return;
 		}
 		
 		this.base.postMail();
-	}
+	},
 	
-	KBEENTITY.prototype.cellCall = function()
+	cellCall : function()
 	{
 		if(arguments.length < 1)
 		{
-			console.error('KBEENTITY::cellCall: not fount interfaceName!');  
+			console.error('KBEngine.Entity::cellCall: not fount interfaceName!');  
 			return;
 		}
 		
@@ -883,7 +959,7 @@ function KBEENTITY()
 		
 		if(arguments.length - 1 != args.length)
 		{
-			console.error("KBEENTITY::cellCall: args(" + (arguments.length - 1) + "!= " + args.length + ") size is error!");  
+			console.error("KBEngine.Entity::cellCall: args(" + (arguments.length - 1) + "!= " + args.length + ") size is error!");  
 			return;
 		}
 		
@@ -899,36 +975,36 @@ function KBEENTITY()
 		}
 		catch(e)
 		{
-			console.error('KBEENTITY::cellCall: args is error!');  
+			console.error('KBEngine.Entity::cellCall: args is error!');  
 			this.cell.bundle = null;
 			return;
 		}
 		
 		this.cell.postMail();
-	}
+	},
 	
-	KBEENTITY.prototype.onEnterWorld = function()
+	onEnterWorld : function()
 	{
 		console.info(this.className + '::onEnterWorld: ' + this.id); 
 		this.inWorld = true;
-	}
+	},
 	
-	KBEENTITY.prototype.onLeaveWorld = function()
+	onLeaveWorld : function()
 	{
 		console.info(this.className + '::onLeaveWorld: ' + this.id); 
 		this.inWorld = false;
-	}
+	},
 	
-	KBEENTITY.prototype.onEnterSpace = function()
+	onEnterSpace : function()
 	{
 		console.info(this.className + '::onEnterSpace: ' + this.id); 
-	}
+	},
 	
-	KBEENTITY.prototype.onLeaveSpace = function()
+	onLeaveSpace : function()
 	{
 		console.info(this.className + '::onLeaveSpace: ' + this.id); 
 	}
-}
+});
 
 /*-----------------------------------------------------------------------------------------
 												entity
@@ -1816,7 +1892,7 @@ function KBENGINE()
 			
 			try
 			{
-				var Class = eval("KBE" + scriptmethod_name);
+				var Class = eval(scriptmethod_name);
 			}
 			catch(e)
 			{
@@ -1932,11 +2008,11 @@ function KBENGINE()
 			
 			try
 			{
-				defmethod = eval("KBE" + scriptmethod_name);
+				defmethod = eval(scriptmethod_name);
 			}
 			catch(e)
 			{
-				console.error("KBENGINE::Client_onImportClientEntityDef: module(KBE" + scriptmethod_name + ") not found!");
+				console.error("KBENGINE::Client_onImportClientEntityDef: module(" + scriptmethod_name + ") not found!");
 				defmethod = undefined;
 			}
 			
@@ -1963,7 +2039,7 @@ function KBENGINE()
 				
 				if(defmethod != undefined && defmethod.prototype[name] == undefined)
 				{
-					console.warn("KBE" + scriptmethod_name + ":: method(" + name + ") no implement!");
+					console.warn(scriptmethod_name + ":: method(" + name + ") no implement!");
 				}
 			};
 		}
@@ -2279,11 +2355,10 @@ function KBENGINE()
 	this.entityclass = {};
 	this.getentityclass = function(entityType)
 	{
-		entityType = "KBE" + entityType;
 		var runclass = g_kbengine.entityclass[entityType];
 		if(runclass == undefined)
 		{
-			runclass = eval(entityType);
+			runclass = eval("KBEngine." + entityType);
 			if(runclass == undefined)
 			{
 				console.error("KBENGINE::getentityclass: entityType(" + entityType + ") is error!");
@@ -2326,7 +2401,7 @@ function KBENGINE()
 		
 		g_kbengine.entities[eid] = entity;
 		
-		entity.__init__();
+		entity.onInit();
 	}
 	
 	this.getAoiEntityIDFromStream = function(stream)
@@ -2499,7 +2574,7 @@ function KBENGINE()
 			g_kbengine.Client_onUpdatePropertys(entityMessage);
 			delete g_bufferedCreateEntityMessage[eid];
 			
-			entity.__init__();
+			entity.onInit();
 			entity.onEnterWorld();
 		}
 		else
