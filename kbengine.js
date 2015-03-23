@@ -2158,13 +2158,13 @@ KBEngine.KBEngineApp = function()
 		}
 	}
 	
-	this.bind_email = function()
+	this.bind_email = function(mailstr)
 	{  
 		var bundle = new KBEngine.Bundle();
 		bundle.newMessage(KBEngine.messages.Baseapp_reqAccountBindEmail);
 		bundle.writeInt32(g_kbengine.entity_id);
 		bundle.writeString(g_kbengine.password);
-		bundle.writeString("kbesrv@gmail.com");
+		bundle.writeString(mailstr);
 		bundle.send(g_kbengine);
 	}
 	
